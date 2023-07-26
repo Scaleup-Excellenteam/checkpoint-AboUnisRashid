@@ -105,7 +105,7 @@ void print_data_for_cell(int level, int class) {
 //-----------------------------------FUNCTION-----------------------------------
 void INITDB() {
     // OPEN FILE
-    FILE* file = fopen("/Users/rashidab/Desktop/students.txt", "r");
+    FILE* file = fopen(" TXT FILE PATH HERE ", "r");
     if (file == NULL) {
         printf("Error opening the file.\n");
         return;
