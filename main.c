@@ -9,10 +9,9 @@
 #define NUM_OF_GRADES 10
 #define NAME_LENGTH 50
 #define PHONE_NUMBER 10
-#define CHAR_LENGTH 1
 //-----------------------------------STRUCT-----------------------------------
 typedef struct Course {
-    char c_name[CHAR_LENGTH];
+    char c_name[NAME_LENGTH];
     int grade;
 } Course;
 //-----------------------------------STRUCT-----------------------------------
@@ -105,7 +104,7 @@ void print_data_for_cell(int level, int class) {
 //-----------------------------------FUNCTION-----------------------------------
 void INITDB() {
     // OPEN FILE
-    FILE* file = fopen(" TXT FILE PATH HERE ", "r");
+    FILE* file = fopen("/Users/rashidab/Desktop/students.txt", "r");
     if (file == NULL) {
         printf("Error opening the file.\n");
         return;
@@ -126,12 +125,43 @@ void INITDB() {
     }
     fclose(file);
 }
+//-----------------------------------FUNCTION-----------------------------------
+void add_new_student(char* first_name, char* last_name, char* phone, int level, int class, int* grades) {
+    struct Student* new_student = (struct Student*) malloc(sizeof (struct Student));
+    // IN CASE ALLOCATION OF STUDENT SUCCEEDED
+    if (new_student != NULL) {
+        strcpy(new_student->first_name, first_name);
+        strcpy(new_student->last_name, last_name);
+        strcpy(new_student->phone, phone);
+        new_student->level = level;
+        new_student->class = class;
+
+        // SET GRADES AND COURSES
+        char course_name = 'A';
+        for (int i = 0; i < NUM_OF_GRADES; ++i) {
+            new_student->grades[i] = grades[i];
+            new_student->course[i].grade = grades[i];
+            snprintf(new_student->course[i].c_name, sizeof(new_student->course[i].c_name), "%c", course_name++);
+        }
+
+        new_student->next = NULL;
+        insert_student(level-1, class-1, new_student);
+    }
+    else printf("ERROR ALLOCATING MEMORY FOR NEW STUDENT!\n");
+}
 //-----------------------------------MAIN-----------------------------------
 int main() {
     INITDB();
 
     print_data_for_cell(0, 0); // Level 1, Class 1
     print_data_for_cell(2, 3); // Level 3, Class 4
+
+    // Add a new student and link courses
+    int new_grades[NUM_OF_GRADES] = {80, 85, 90, 77, 95, 88, 93, 82, 91, 89};
+    add_new_student("John", "Doe", "123456789", 3, 4, new_grades);
+
+    // Print data after adding the new student
+    print_data_for_cell(2, 3); // Level 3, Class 4 (updated)
 
     return 0;
 }
