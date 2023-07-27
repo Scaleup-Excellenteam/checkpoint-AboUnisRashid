@@ -146,7 +146,9 @@ void add_new_student(char* first_name, char* last_name, char* phone, int level, 
 
         new_student->next = NULL;
         insert_student(level-1, class-1, new_student);
-        printf("Student John Doee Added from Level 4, Class 5.\n");
+        printf("Student Added in Level %d, Class %d.\n", level, class);
+        printf("-------------------------------\n");
+
     }
     else printf("ERROR ALLOCATING MEMORY FOR NEW STUDENT!\n");
 }
@@ -168,6 +170,7 @@ void delete_student(char* first_name, char* last_name, int level, int class) {
             }
             free(curr);
             printf("Student %s %s removed from Level %d, Class %d.\n", first_name, last_name, level + 1, class + 1);
+            printf("-------------------------------\n");
             return;
         }
         prev = curr;
@@ -204,11 +207,88 @@ void edit_student_grade(char* first_name, char* last_name, int level, int class,
             curr->course[i].grade = grade;
             curr->grades[i] = grade;
             printf("Grade for student %s %s in course %c updated to %d\n", first_name, last_name, course, grade);
+            printf("-------------------------------\n");
             return;
         }
     }
-    printf("Course %s not found for student %s %s in Level %d, Class %d.\n", course, first_name, last_name, level + 1, class + 1);
+    printf("Course %c not found for student %s %s in Level %d, Class %d.\n", course, first_name, last_name, level + 1, class + 1);
 }
+//-----------------------------------FUNCTION-----------------------------------
+void search_student(char* first_name, char* last_name) {
+    for (int level = 0; level < NUM_LEVELS; ++level) {
+        for (int class = 0; class < NUM_CLASSES; ++class) {
+            struct Student* curr = s.DB[level][class];
+            while (curr != NULL) {
+                if (strcmp(curr->first_name, first_name) == 0 && strcmp(curr->last_name, last_name) == 0) {
+                    printf("Student Found:\n");
+                    printf("Student Name: %s %s\n", curr->first_name, curr->last_name);
+                    printf("Phone Number: %s\n", curr->phone);
+                    printf("Level: %d\n", curr->level + 1);
+                    printf("Class: %d\n", curr->class + 1);
+
+                    // Print course data
+                    printf("Courses:\n");
+                    for (int i = 0; i < NUM_COURSES; i++) {
+                        printf("Course Name: %s, Grade: %d\n", curr->course[i].c_name, curr->course[i].grade);
+                    }
+
+                    printf("-------------------------------\n");
+                    return;
+                }
+                curr = curr->next;
+            }
+        }
+    }
+    printf("Student %s %s not found.\n", first_name, last_name);
+}
+
+//-----------------------------------FUNCTION-----------------------------------
+void top_students_in_course(char course) {
+    printf("Top 10 Students in Course %c:\n", course);
+    for (int level = 0; level < NUM_LEVELS; ++level) {
+        struct Student* current = NULL;
+        struct Student* top_students[10] = {NULL};
+        int top_grades[10] = {0};
+
+        for (int class = 0; class < NUM_CLASSES; ++class) {
+            current = s.DB[level][class];
+
+            while (current != NULL) {
+                for (int i = 0; i < NUM_COURSES; i++) {
+                    if (current->course[i].c_name[0] == course) {
+                        int grade = current->course[i].grade;
+
+                        // Insert the student into the top_students array in descending order of grades
+                        for (int j = 0; j < 10; j++) {
+                            if (grade > top_grades[j]) {
+                                for (int k = 9; k > j; k--) {
+                                    top_students[k] = top_students[k - 1];
+                                    top_grades[k] = top_grades[k - 1];
+                                }
+                                top_students[j] = current;
+                                top_grades[j] = grade;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+                current = current->next;
+            }
+        }
+
+        printf("Data for Level %d:\n", level + 1);
+        for (int i = 0; i < 10; i++) {
+            if (top_students[i] != NULL) {
+                printf("Student Name: %s %s, Grade: %d\n", top_students[i]->first_name, top_students[i]->last_name, top_grades[i]);
+            }
+        }
+        printf("-------------------------------\n");
+    }
+}
+
+
+
 //-----------------------------------MAIN-----------------------------------
 int main() {
     INITDB();
@@ -221,8 +301,8 @@ int main() {
     edit_student_grade("John", "Doe", 3 ,4, 'A', 0);
 
     // Print data after adding the new student
-    print_data_for_cell(3, 4); // Level 3, Class 4 (updated)
-
-
+    //print_data_for_cell(3, 4); // Level 3, Class 4 (updated)
+    //search_student("John", "Doe");
+    top_students_in_course('A');
     return 0;
 }
