@@ -76,8 +76,8 @@ void insert_student(int level, int class, struct Student* new_student) {
 //-----------------------------------FUNCTION-----------------------------------
 void print_data_for_cell(int level, int class) {
     if (level >= 0 && level < NUM_LEVELS && class >= 0 && class < NUM_CLASSES) {
-        struct Student* current = s.DB[level][class];
-        printf("Data for Level %d, Class %d:\n", level + 1, class + 1);
+        struct Student* current = s.DB[level-1][class-1];
+        printf("Data for Level %d, Class %d:\n", level - 1 , class - 1 );
 
         while (current != NULL) {
             printf("Student Name: %s %s\n", current->first_name, current->last_name);
@@ -149,19 +149,46 @@ void add_new_student(char* first_name, char* last_name, char* phone, int level, 
     }
     else printf("ERROR ALLOCATING MEMORY FOR NEW STUDENT!\n");
 }
+//-----------------------------------FUNCTION-----------------------------------
+void delete_student(char* first_name, char* last_name, int level, int class) {
+    // CHECK IF ARGUMENTS ARE VALID
+    if (!(level >= 0 && level < NUM_LEVELS && class >= 0 && class < NUM_CLASSES))
+        printf("LEVEL/CLASS ARGUMENTS ARE NOT VALID");
+    //
+    struct Student* curr = s.DB[level-1][class-1];
+    struct Student* prev = NULL;
+    // FIND THE STUDENT LOCATION
+    while(curr != NULL) {
+        if(strcmp(curr->first_name, first_name) == 0 && strcmp(curr->last_name, last_name) == 0) {
+            if (prev == NULL) {
+                s.DB[level][class] = curr->next;
+            } else {
+                prev->next = curr->next;
+            }
+            free(curr);
+            printf("Student %s %s removed from Level %d, Class %d.\n", first_name, last_name, level + 1, class + 1);
+            return;
+        }
+        prev = curr;
+        curr = curr->next;
+    }
+    printf("Student %s %s not found in Level %d, Class %d.\n", first_name, last_name, level + 1, class + 1);
+}
 //-----------------------------------MAIN-----------------------------------
 int main() {
     INITDB();
 
-    print_data_for_cell(0, 0); // Level 1, Class 1
-    print_data_for_cell(2, 3); // Level 3, Class 4
+    //print_data_for_cell(0, 0); // Level 1, Class 1
+    //print_data_for_cell(2, 3); // Level 3, Class 4
 
     // Add a new student and link courses
     int new_grades[NUM_OF_GRADES] = {80, 85, 90, 77, 95, 88, 93, 82, 91, 89};
-    add_new_student("John", "Doe", "123456789", 3, 4, new_grades);
+    add_new_student("John", "Doee", "123456789", 3, 4, new_grades);
 
     // Print data after adding the new student
-    print_data_for_cell(2, 3); // Level 3, Class 4 (updated)
+    delete_student("John", "Doee", 3 ,4);
+    print_data_for_cell(3, 4); // Level 3, Class 4 (updated)
+
 
     return 0;
 }
