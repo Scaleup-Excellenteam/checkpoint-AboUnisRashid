@@ -146,6 +146,7 @@ void add_new_student(char* first_name, char* last_name, char* phone, int level, 
 
         new_student->next = NULL;
         insert_student(level-1, class-1, new_student);
+        printf("Student John Doee Added from Level 4, Class 5.\n");
     }
     else printf("ERROR ALLOCATING MEMORY FOR NEW STUDENT!\n");
 }
@@ -154,7 +155,7 @@ void delete_student(char* first_name, char* last_name, int level, int class) {
     // CHECK IF ARGUMENTS ARE VALID
     if (!(level >= 0 && level < NUM_LEVELS && class >= 0 && class < NUM_CLASSES))
         printf("LEVEL/CLASS ARGUMENTS ARE NOT VALID");
-    //
+
     struct Student* curr = s.DB[level-1][class-1];
     struct Student* prev = NULL;
     // FIND THE STUDENT LOCATION
@@ -174,19 +175,52 @@ void delete_student(char* first_name, char* last_name, int level, int class) {
     }
     printf("Student %s %s not found in Level %d, Class %d.\n", first_name, last_name, level + 1, class + 1);
 }
+//-----------------------------------FUNCTION-----------------------------------
+struct Student* get_student(char* first_name, char* last_name, int level, int class) {
+    if (level >= 0 && level < NUM_LEVELS && class >= 0 && class < NUM_CLASSES) {
+        struct Student* current = s.DB[level - 1][class - 1];
+
+        while (current != NULL) {
+            if (strcmp(current->first_name, first_name) == 0 && strcmp(current->last_name, last_name) == 0) {
+                return current;
+            }
+            current = current->next;
+        }
+
+        printf("Student %s %s not found in Level %d, Class %d.\n", first_name, last_name, level + 1, class + 1);
+        return NULL;
+    } else {
+        printf("Invalid level or class!\n");
+        return NULL;
+    }
+}
+//-----------------------------------FUNCTION-----------------------------------
+void edit_student_grade(char* first_name, char* last_name, int level, int class, char course, int grade) {
+    struct Student* curr = get_student(first_name, last_name, level, class);
+    if (curr == NULL) return; // STUDENT NOT FOUND ----> NOTHING TO CHANGE
+
+    for (int i = 0; i < NUM_COURSES; ++i) {
+        if (curr->course[i].c_name[0] == course) { // Compare the first character of course names
+            curr->course[i].grade = grade;
+            curr->grades[i] = grade;
+            printf("Grade for student %s %s in course %c updated to %d\n", first_name, last_name, course, grade);
+            return;
+        }
+    }
+    printf("Course %s not found for student %s %s in Level %d, Class %d.\n", course, first_name, last_name, level + 1, class + 1);
+}
 //-----------------------------------MAIN-----------------------------------
 int main() {
     INITDB();
 
-    //print_data_for_cell(0, 0); // Level 1, Class 1
-    //print_data_for_cell(2, 3); // Level 3, Class 4
-
     // Add a new student and link courses
     int new_grades[NUM_OF_GRADES] = {80, 85, 90, 77, 95, 88, 93, 82, 91, 89};
-    add_new_student("John", "Doee", "123456789", 3, 4, new_grades);
+    add_new_student("John", "Doe", "123456789", 3, 4, new_grades);
+
+    // Edit student grade
+    edit_student_grade("John", "Doe", 3 ,4, 'A', 0);
 
     // Print data after adding the new student
-    delete_student("John", "Doee", 3 ,4);
     print_data_for_cell(3, 4); // Level 3, Class 4 (updated)
 
 
